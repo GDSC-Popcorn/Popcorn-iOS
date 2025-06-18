@@ -9,8 +9,8 @@ import Foundation
 
 final class PopupDetailViewModel: MainCarouselViewModelProtocol {
     private let imageFetchUseCase: ImageFetchUseCaseProtocol
-    private let popupDetailUseCase: PopupDetailUseCaseProtocol
-    private let popupDetailDataSource: PopupDetailDataSource
+    private let useCase: PopupDetailUseCaseProtocol
+    private let dataSource: PopupDetailDataSource
     private var reviewPage = 1
 
     // MARK: - Output
@@ -25,35 +25,37 @@ final class PopupDetailViewModel: MainCarouselViewModelProtocol {
          popupDetailDataSource: PopupDetailDataSource = PopupDetailDataSource()
     ) {
         self.imageFetchUseCase = imageFetchUseCase
-        self.popupDetailUseCase = popupDetailUseCase
-        self.popupDetailDataSource = popupDetailDataSource
+        self.useCase = popupDetailUseCase
+        self.dataSource = popupDetailDataSource
     }
 
     func getDataSource() -> PopupDetailDataSource {
-        return popupDetailDataSource
+        return dataSource
     }
 
     func isFinished() -> Bool {
-        return popupDetailDataSource.detailInformationItem().isFinished
+        return dataSource.detailInformationItem().isFinished
     }
 
     func isWriteReviewEnabled() -> Bool {
-        return popupDetailDataSource.detailInformationItem().isWriteReviewEnabled
+        return dataSource.detailInformationItem().isWriteReviewEnabled
     }
 }
 
 // MARK: - Input
 extension PopupDetailViewModel {
     func didTapPickButton(for popupId: Int) {
-        popupDetailUseCase.togglePopupPick(popupId: popupId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let isPick):
-                self.popupDetailDataSource.updatePickStatus(isPick)
+        Task {
+            do {
+                let isPick = try await useCase.togglePopupPick(popupId: popupId)
+                dataSource.updatePickStatus(isPick)
                 popupPickPublisher?(isPick)
-            case .failure(let error):
-                // TODO: 에러 UI 처리
-                print("찜하기 실패: \(error)")
+            } catch {
+                if let error = error as? NetworkError {
+                    print(#function, error.description)
+                } else {
+                    print(#function, error)
+                }
             }
         }
     }
@@ -74,32 +76,42 @@ extension PopupDetailViewModel {
         imageFetchUseCase.fetchImage(url: url, completion: completion)
     }
 
-    func fetchPopupInformation() {
-        popupDetailUseCase.fetchPopupAllData { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let (popupInformation, popupRatingDistribution, popupReviewList)):
-                self.popupDetailDataSource.updateInformationData(popupInformation)
-                self.popupDetailDataSource.updateRatingData(popupRatingDistribution)
-                self.popupDetailDataSource.updateReviewData(popupReviewList)
-            case .failure:
-                popupDetailDataSource.showPlaceholderData()
+    func fetchPopupDetail(for popupId: Int) {
+        Task {
+            do {
+                let (information, ratingDistribution, reviewList) = try await useCase.fetchPopupAllData(for: popupId)
+                dataSource.updateInformationData(information)
+                dataSource.updateRatingData(ratingDistribution)
+                dataSource.updateReviewData(reviewList)
+            } catch {
+                dataSource.showPlaceholderData()
+
+                if let error = error as? NetworkError {
+                    print(#function, error.description)
+                } else {
+                    print(#function, error)
+                }
             }
+
+            carouselImagePublisher?()
+            popupInformationPublisher?()
+            popupReviewPublisher?()
         }
-        carouselImagePublisher?()
-        popupInformationPublisher?()
-        popupReviewPublisher?()
     }
 
     func fetchPopupReview() {
-        let popupId = popupDetailDataSource.getPopupId()
-        popupDetailUseCase.fetchPopupReviews(popupId: popupId, page: reviewPage) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let popupReviewList):
-                self.popupDetailDataSource.updateReviewData(popupReviewList)
-            case .failure:
-                popupDetailDataSource.showPlaceholderReviewData()
+        let popupId = dataSource.getPopupId()
+        Task {
+            do {
+                let popupReviewList = try await useCase.fetchPopupReviews(popupId: popupId, page: reviewPage)
+                dataSource.updateReviewData(popupReviewList)
+            } catch {
+                dataSource.showPlaceholderReviewData()
+                if let error = error as? NetworkError {
+                    print(#function, error.description)
+                } else {
+                    print(#function, error)
+                }
             }
         }
         popupReviewPublisher?()
@@ -113,11 +125,11 @@ extension PopupDetailViewModel {
 // MARK: - Implement MainCarouselViewModelProtocol
 extension PopupDetailViewModel {
     func numbersOfCarouselImage() -> Int {
-        return popupDetailDataSource.numberOfCarouseImage()
+        return dataSource.numberOfCarouseImage()
     }
 
     func provideCarouselImageUrl(at indexPath: IndexPath) -> String {
-        return popupDetailDataSource.popupImageItem(at: indexPath)
+        return dataSource.popupImageItem(at: indexPath)
     }
 }
 

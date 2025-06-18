@@ -9,12 +9,11 @@ import Foundation
 
 protocol PopupDetailRepositoryProtocol {
     func fetchPopupAllData(
-        popupId: Int,
-        completion: @escaping (Result<(PopupInformation, PopupRatingDistribution, PopupReviewList), Error>) -> Void
-    )
+        for popupId: Int
+    ) async throws -> (PopupInformation, PopupRatingDistribution, PopupReviewList)
 
-    func fetchPopupReviews(popupId: Int, page: Int, completion: @escaping (Result<PopupReviewList, Error>) -> Void)
+    func fetchReviewList(popupId: Int, page: Int) async throws -> PopupReviewList
 
-    func togglePopupPick(popupId: Int, completion: @escaping (Result<Bool, Error>) -> Void)
+    func togglePopupPick(popupId: Int) async throws -> Bool
     //  리뷰 좋아요 토글, 리뷰 작성 추가
 }
