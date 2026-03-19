@@ -64,10 +64,10 @@ Popcorn 팀은 다음의 세 기술들을 주요 기술로 선정하였습니다
 - [Deep Link & Universal Link가 머에여..?](https://github.com/GDSC-Popcorn/Popcorn-iOS/wiki/%5B학습-기록%5D-Deep-Link-&-Universal-Link가-머에여..%3F)
 # 3. 🖥️ 개발 기록
 ## 🦁 성훈
-- [ 카카오 소셜로그인 해보기](https://velog.io/@ksnughnu/팝콘개발기록-카카오-소셜로그인-해보기)
-- [멋진 사용자의 토큰 관리해보기](https://velog.io/@ksnughnu/팝콘개발기록-멋진-사용자의-토큰-관리해보기)
-- [네트워크 레이어 없이 로그인 API연동 해보기](https://velog.io/@ksnughnu/팝콘개발기록-네트워크-레이어-없이-로그인-API연동-해보기)
-- [DIContainer를 사용해보자](https://velog.io/@ksnughnu/팝콘개발기록-DIContainer를-사용해보자)
+- [카카오 소셜로그인 해보기](https://www.notion.so/31f80f28c3ad8002bef2e96f3bc72d2d?source=copy_link)
+- [멋진 사용자의 토큰 관리해보기](https://www.notion.so/Keychain-31f80f28c3ad80ab979ac22a0c8b888e?source=copy_link)
+- [네트워크 레이어 없이 로그인 API연동 해보기](https://www.notion.so/URLSession-31f80f28c3ad808f930de49f111254b9?source=copy_link)
+- [DIContainer를 사용해보자](https://www.notion.so/DIContainer-31f80f28c3ad80ffb5b4e14fc4f0c784?source=copy_link)
 ## 👾 민우
 - [Swift Lint 적용기](https://velog.io/@gration77/Popcorn-Swift-Lint-적용기)
 - [iOS CI 적용기 with GitHub Actions](https://velog.io/@gration77/Popcorn-iOS-CI-적용기)
